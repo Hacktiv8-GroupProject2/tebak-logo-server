@@ -1,47 +1,72 @@
-'use strict'
-// require('dotenv').config()
-// const express = require('express');
-// const app = express()
-// const cors = require('cors');
-// const Routes = require('./routes');
-// const errorHandler = require('./middlewares/errorHandler');
-// const port = process.env.PORT || 3000
-
-
-// app.use(cors())
-// app.use(express.urlencoded({extended:false}))
-// app.use(express.json())
-
-// app.use('/', Routes)
-
-// app.use(errorHandler)
 const cors = require('cors');
-const port = process.env.PORT || 3000
 const express = require('express');
 const app = express();
+const PORT = 3000
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({extended:false}))
-app.use(express.static("public"));
+app.use(cors());
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/index.html");
-});
+const { generateQuestion, getRandomLogo } = require('./helpers/helper');
+const { create } = require('domain');
+let players = []
+let answers = []
 
+let questions = generateQuestion();
+let question = questions.q;
+
+// console.log(question)
 io.on('connection', (socket) => {
   console.log('a user connected');
+  
+    socket.on('connected', (player) => {
+      console.log(player.username + ' is now connected' );
+      players.push({ 
+        id: socket.id, 
+        username: player.username, 
+        points: 0 
+      })
+      console.log(players)
+      io.emit('connected', players)
+      io.emit('sendQuestion', question)
+      // console.log(question)
+    });
+    
+    // socket.on('sendQuestion', (question) => {
+    //   io.emit('sendQuestion', question)
+    // });
+
+    socket.on('sendAnswer', (answer) => {
+      console.log(answer.answer)
+      console.log(questions.a)
+      answers.push(answer)
+      io.emit('sendAnswer', answers)
+
+      if(+answer.answer == questions.a){
+        questions = generateQuestion();
+        increasePoints(socket.id);
+
+        io.emit('sendQuestion', questions.q)
+      }
+    });
 });
 
-http.listen(3000, () => {
-  console.log('listening on *:3000');
-});
-// io.on('connection', (socket) => {
-//   console.log(socket.id,'a user connected');
-// });
+function increasePoints(id) {
+  players = players.map(player => {
+    if(player.id == id){
+      return {
+        id: player.id, 
+        username: player.username, 
+        points: player.points + 1
+      }
+    } else {
+      return player;
+    }
+  });
+}
 
-// http.listen(port,()=>{
-//   console.log(`App running in http://localhost:${port}`);
-// })
+http.listen(PORT,()=>{
+  console.log(`App running in http://localhost:${PORT}`);
+})
