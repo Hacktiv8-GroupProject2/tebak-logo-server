@@ -1,11 +1,11 @@
 const data = [
     {
         name: 'youtube', 
-        imager_url: 'https://i.imgur.com/w5AOsXU.jpg'
+        image_url: 'https://i.imgur.com/w5AOsXU.jpg'
     },
     {
         name: 'bango',
-        imager_url: 'https://i.imgur.com/6wuTmGK.jpg'
+        image_url: 'https://i.imgur.com/6wuTmGK.jpg'
     },
     {
         name: 'starbuck',
@@ -64,3 +64,4 @@ function randomLogo () {
     return data[random]
 }
 
+module.exports = randomLogo
