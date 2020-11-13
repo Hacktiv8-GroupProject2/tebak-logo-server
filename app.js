@@ -9,8 +9,9 @@ app.use(cors());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-const { generateQuestion, getRandomLogo } = require('./helpers/helper');
+const { generateQuestion, getRandomLogo } = require('./helpers/helpers');
 const { create } = require('domain');
+
 let players = []
 let answers = []
 
@@ -19,8 +20,7 @@ let question = questions.q;
 
 // console.log(question)
 io.on('connection', (socket) => {
-  console.log('a user connected');
-  
+  console.log('a user connected');  
     socket.on('connected', (player) => {
       console.log(player.username + ' is now connected' );
       players.push({ 
@@ -37,17 +37,14 @@ io.on('connection', (socket) => {
     // socket.on('sendQuestion', (question) => {
     //   io.emit('sendQuestion', question)
     // });
-
     socket.on('sendAnswer', (answer) => {
       console.log(answer.answer)
       console.log(questions.a)
       answers.push(answer)
       io.emit('sendAnswer', answers)
-
       if(+answer.answer == questions.a){
         questions = generateQuestion();
         increasePoints(socket.id);
-
         io.emit('sendQuestion', questions.q)
       }
     });

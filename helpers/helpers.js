@@ -2,9 +2,7 @@ function generateQuestion() {
   const num1 = getRandomLogo();
   const num2 = getRandomLogo();
   const op = "*";
-
   const question = `${num1} ${op} ${num2}`
-
   return {
       q: question,
       a: eval(question)
