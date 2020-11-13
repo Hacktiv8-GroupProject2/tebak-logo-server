@@ -54,7 +54,36 @@ const data = [
     {
         name: 'pertamina',
         image_url: 'https://i.imgur.com/zuyZAkW.jpg'
-    }
+    },
+    {
+        name: 'apple',
+        image_url: 'https://i.imgur.com/9m9vnCK.jpg'
+    },
+    {
+        name: 'batman',
+        image_url: 'https://i.imgur.com/eMgurW5.png'
+    },
+    {
+        name: 'yahoo',
+        image_url: 'https://i.imgur.com/FXICfV5.jpg'
+    },
+    {
+        name: 'twitter',
+        image_url: 'https://i.imgur.com/0qbumjL.png'
+    },
+    {
+        name: 'mitsubishi',
+        image_url: 'https://i.imgur.com/CLNMnxl.jpg'
+    },
+    {
+        name: 'telegram',
+        image_url: 'https://i.imgur.com/I5BMADi.jpg'
+    },
+    
+    
+    
+    
+
 ]
 
 
