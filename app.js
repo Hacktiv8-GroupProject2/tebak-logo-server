@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-const { generateQuestion, getRandomLogo } = require('./helpers/helper');
+const { generateQuestion, getRandomLogo } = require('./helpers/perkalian_helper');
 const { create } = require('domain');
 let players = []
 let answers = []
