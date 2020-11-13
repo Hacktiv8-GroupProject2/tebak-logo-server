@@ -22,22 +22,29 @@ let question = questions.image_url
 let correctAnswer = questions.name
 
 io.on('connection', (socket) => {
-  console.log('a user connected');  
+   
     socket.on('connected', (player) => {
-      players.push({ 
-        id: socket.id, 
-        username: player.username, 
-        points: 0 
-      })
-      let payload = {
-        current_player : {
+      let isAllowed = true
+      if(players.length < 5){
+        players.push({ 
           id: socket.id, 
           username: player.username, 
           points: 0 
-        },
-        player_list : players
+        })
+        
+        let payload = {
+          current_player : {
+            id: socket.id, 
+            username: player.username, 
+            points: 0 
+          },
+          player_list : players,
+        }
+        io.emit('updatePlayers',players)
+        io.emit('connected', payload)
+      }else{
+        io.emit('roomFull')
       }
-      io.emit('connected', payload)
     });
 
     socket.on('getQuestion', () => {
@@ -79,8 +86,8 @@ io.on('connection', (socket) => {
       io.emit('question', payload)
     })
 
-    socket.on('disconnect', ()=>{
-      console.log('disconnected',socket.id);
+    socket.on('disconnect', ()=>{    
+      io.emit('updatePlayers', players)      
     })
     // socket.on('sendAnswer', (answer) => {
     //   console.log(answer.answer)
@@ -93,6 +100,7 @@ io.on('connection', (socket) => {
     //     io.emit('sendQuestion', questions.q)
     //   }
     // });    
+    
 });
 
 
