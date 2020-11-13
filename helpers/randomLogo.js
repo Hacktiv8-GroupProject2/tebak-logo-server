@@ -64,4 +64,3 @@ function randomLogo () {
     return data[random]
 }
 
-randomLogo()

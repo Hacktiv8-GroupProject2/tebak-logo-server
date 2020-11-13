@@ -9,18 +9,21 @@ app.use(cors());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-const { generateQuestion, getRandomLogo } = require('./helpers/perkalian_helper');
-const { create } = require('domain');
+// const { generateQuestion, getRandomLogo } = require('./helpers/perkalian_helper');
+// const { create } = require('domain');
+const randomLogo = require('./helpers/randomLogo')
+const increasePoints = require('./helpers/increasePoints');
+const { generateQuestion } = require('./helpers/perkalian_helper');
+
 let players = []
-let answers = []
+// let answers = []
 
-let questions = generateQuestion();
-let question = questions.q;
+let questions = randomLogo
+let question = questions.image_url
+let correctAnswer = questions.name
 
-// console.log(question)
 io.on('connection', (socket) => {
-  console.log('a user connected');
-  
+  console.log('a user connected');  
     socket.on('connected', (player) => {
       console.log(player.username + ' is now connected' );
       players.push({ 
@@ -30,42 +33,33 @@ io.on('connection', (socket) => {
       })
       console.log(players)
       io.emit('connected', players)
-      io.emit('sendQuestion', question)
-      // console.log(question)
     });
-    
-    // socket.on('sendQuestion', (question) => {
-    //   io.emit('sendQuestion', question)
-    // });
+
+    socket.on('getQuestion', () => {
+      io.emit('question', question)
+    })
 
     socket.on('sendAnswer', (answer) => {
-      console.log(answer.answer)
-      console.log(questions.a)
-      answers.push(answer)
-      io.emit('sendAnswer', answers)
-
-      if(+answer.answer == questions.a){
-        questions = generateQuestion();
-        increasePoints(socket.id);
-
-        io.emit('sendQuestion', questions.q)
+      if(answer === correctAnswer) {
+        questions = randomLogo
+        increasePoints(socket.id)
+        io.emit('sendQuestion', questions.name)
       }
-    });
+    })
+
+    // socket.on('sendAnswer', (answer) => {
+    //   console.log(answer.answer)
+    //   console.log(questions.a)
+    //   answers.push(answer)
+    //   io.emit('sendAnswer', answers)
+    //   if(+answer.answer == questions.a){
+    //     questions = generateQuestion();
+    //     increasePoints(socket.id);
+    //     io.emit('sendQuestion', questions.q)
+    //   }
+    // });
 });
 
-function increasePoints(id) {
-  players = players.map(player => {
-    if(player.id == id){
-      return {
-        id: player.id, 
-        username: player.username, 
-        points: player.points + 1
-      }
-    } else {
-      return player;
-    }
-  });
-}
 
 http.listen(PORT,()=>{
   console.log(`App running in http://localhost:${PORT}`);
