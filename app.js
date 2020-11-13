@@ -13,30 +13,46 @@ app.use(express.json());
 // const { create } = require('domain');
 const randomLogo = require('./helpers/randomLogo')
 const increasePoints = require('./helpers/increasePoints');
-const { generateQuestion } = require('./helpers/perkalian_helper');
 
 let players = []
 // let answers = []
 
-let questions = randomLogo
+let questions = randomLogo()
 let question = questions.image_url
 let correctAnswer = questions.name
 
 io.on('connection', (socket) => {
-  console.log('a user connected');  
+   
     socket.on('connected', (player) => {
-      console.log(player.username + ' is now connected' );
-      players.push({ 
-        id: socket.id, 
-        username: player.username, 
-        points: 0 
-      })
-      console.log(players)
-      io.emit('connected', players)
+      let isAllowed = true
+      if(players.length < 5){
+        players.push({ 
+          id: socket.id, 
+          username: player.username, 
+          points: 0 
+        })
+        
+        let payload = {
+          current_player : {
+            id: socket.id, 
+            username: player.username, 
+            points: 0 
+          },
+          player_list : players,
+        }
+        io.emit('updatePlayers',players)
+        io.emit('connected', payload)
+      }else{
+        io.emit('roomFull')
+      }
     });
 
     socket.on('getQuestion', () => {
-      io.emit('question', question)
+      let payload = {
+        image: question,
+        answer: correctAnswer
+      }
+      io.emit('question', payload)
     })
 
     socket.on('sendAnswer', (answer) => {
@@ -47,6 +63,32 @@ io.on('connection', (socket) => {
       }
     })
 
+    socket.on('changeQuestion', () => {
+      let newQuestion = randomLogo()
+      let payload = {
+        image: newQuestion.image_url,
+        answer: newQuestion.name
+      }
+
+      players = players.map(player => {
+        if(player.id == socket.id){
+          return {
+            id: player.id, 
+            username: player.username, 
+            points: player.points + 1
+          }
+        } else {
+          return player;
+        }
+      });
+      console.log(players);
+      io.emit('updatePlayers', players)
+      io.emit('question', payload)
+    })
+
+    socket.on('disconnect', ()=>{    
+      io.emit('updatePlayers', players)      
+    })
     // socket.on('sendAnswer', (answer) => {
     //   console.log(answer.answer)
     //   console.log(questions.a)
@@ -57,7 +99,8 @@ io.on('connection', (socket) => {
     //     increasePoints(socket.id);
     //     io.emit('sendQuestion', questions.q)
     //   }
-    // });
+    // });    
+    
 });
 
 

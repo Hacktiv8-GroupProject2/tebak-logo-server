@@ -1,4 +1,4 @@
-function increasePoints(id) {
+function increasePoints(id,players) {
     players = players.map(player => {
       if(player.id == id){
         return {
